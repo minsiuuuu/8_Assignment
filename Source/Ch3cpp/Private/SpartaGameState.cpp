@@ -183,7 +183,7 @@ void ASpartaGameState::UpdateHUD()
 				}
 				if (UTextBlock* LevelIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("Level"))))
 				{
-					LevelIndexText->SetText(FText::FromString(FString::Printf(TEXT("Level %d"), CurrentWave)));
+					LevelIndexText->SetText(FText::FromString(FString::Printf(TEXT("Wave %d"), CurrentWave)));
 				}
 				if (UProgressBar* HealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("HP"))))
 				{

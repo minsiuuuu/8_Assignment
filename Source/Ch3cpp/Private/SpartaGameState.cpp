@@ -1,10 +1,12 @@
 #include "SpartaGameState.h"
 #include "SpartaGameInstance.h"
 #include "SpartaPlayerController.h"
+#include "SpartaCharacter.h"
 #include "SpawnVolume.h"
 #include "CoinItem.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 #include "Blueprint/UserWidget.h"
 
 ASpartaGameState::ASpartaGameState()
@@ -62,7 +64,7 @@ void ASpartaGameState::OnGameOver()
 		if (ASpartaPlayerController* SpartaPlayerController = Cast<ASpartaPlayerController>(PlayerController))
 		{
 			SpartaPlayerController->SetPause(true);
-			SpartaPlayerController->ShowMainMenu(true);
+			SpartaPlayerController->ShowGameOverMenu();
 		}
 	}
 }
@@ -181,7 +183,38 @@ void ASpartaGameState::UpdateHUD()
 				}
 				if (UTextBlock* LevelIndexText = Cast<UTextBlock>(HUDWidget->GetWidgetFromName(TEXT("Level"))))
 				{
-					LevelIndexText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), CurrentWave)));
+					LevelIndexText->SetText(FText::FromString(FString::Printf(TEXT("Level %d"), CurrentWave)));
+				}
+				if (UProgressBar* HealthBar = Cast<UProgressBar>(HUDWidget->GetWidgetFromName(TEXT("HP"))))
+				{
+					if (ACharacter* PlayerCharacter = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0))
+					{
+						if (ASpartaCharacter* SpartaCharacter = Cast<ASpartaCharacter>(PlayerCharacter))
+						{
+							float HealthPercent = SpartaCharacter->GetHealth() / SpartaCharacter->GetMaxHealth();
+							HealthBar->SetPercent(HealthPercent);
+
+							FLinearColor BarColor;
+							if (HealthPercent == 1.0f)
+							{
+								BarColor = FLinearColor(0.8f, 0.8f, 0.8f, 1.0f);
+							}
+							else if (HealthPercent > 0.65f)
+							{
+								BarColor = FLinearColor::White;
+							}
+							else if (HealthPercent > 0.3f)
+							{
+								BarColor = FLinearColor(1.0f, 0.9f, 0.4f, 1.0f);
+							}
+							else
+							{
+								BarColor = FLinearColor(1.0f, 0.4f, 0.4f, 1.0f);
+							}
+
+							HealthBar->SetFillColorAndOpacity(BarColor);
+						}
+					}
 				}
 			}
 		}
